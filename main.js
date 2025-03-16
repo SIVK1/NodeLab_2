@@ -7,7 +7,9 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 const { createBrotliCompress, createBrotliDecompress } = require('node:zlib');
 
-let username = 'User'; 
+
+const args = process.argv.slice(2);
+let username = args.find(arg => arg.startsWith('--username='))?.split('=')[1] || 'User'; 
 let currentDir = path.join(os.homedir(), 'Desktop');
 
 const rl = createInterface({
@@ -16,16 +18,6 @@ const rl = createInterface({
 });
 
 async function initialize() {
-  const args = process.argv.slice(2);
-
-
-  for (const arg of args) {
-    if (arg.startsWith('--username=')) {
-      username = arg.split('=')[1];
-      break;
-    }
-  }
-  
   console.log(`Welcome to the File Manager, ${username}!`);
   showCurrentDir();
   promptUser();
@@ -97,7 +89,6 @@ async function handleCommand(input) {
   promptUser();
 }
 
-
 async function goUp() {
   const parentDir = path.dirname(currentDir);
   if (parentDir !== currentDir) {
@@ -127,7 +118,6 @@ async function listDir() {
   
   console.table([...folders, ...files]);
 }
-
 
 async function readFile(filePath) {
   if (!filePath) throw new Error('No path provided');
@@ -172,7 +162,6 @@ async function removeFile(filePath) {
   await fs.unlink(fullPath);
 }
 
-
 async function handleOsCommand(flag) {
   if (!flag) throw new Error('No flag provided');
   switch (flag) {
@@ -200,7 +189,6 @@ async function handleOsCommand(flag) {
   }
 }
 
-
 async function calculateHash(filePath) {
   if (!filePath) throw new Error('No path provided');
   const fullPath = path.resolve(currentDir, filePath);
@@ -212,7 +200,6 @@ async function calculateHash(filePath) {
   });
   console.log(hashed);
 }
-
 
 async function compressFile(filePath, destPath) {
   if (!filePath || !destPath) throw new Error('Missing arguments');
